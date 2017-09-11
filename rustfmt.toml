@@ -1,0 +1,4 @@
+tab_spaces           = 2
+write_mode           = "Overwrite"
+ideal_width          = 100
+where_trailing_comma = true
