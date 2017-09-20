@@ -2,6 +2,7 @@
 use bitcoin::network::listener::Listener;
 // use bitcoin::network::socket::Socket;
 use bitcoin::network::constants::Network;
+use std::fmt::Debug;
 
 pub struct SPVListener {
   config: String,
@@ -22,8 +23,9 @@ impl Listener for SPVListener {
 }
 
 impl SPVListener {
-  pub fn new(argmatches: &str) -> Self {
-    SPVListener { config: argmatches.to_owned() }
+  pub fn new<T: Iterator + Debug>(argmatches: T) -> Self {
+    println!("{:?}", argmatches);
+    SPVListener { config: "hoge".to_owned() }
   }
 
   pub fn run(&self) {

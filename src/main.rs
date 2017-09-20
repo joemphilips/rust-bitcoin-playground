@@ -23,10 +23,12 @@ where
   I: IntoIterator<Item = T>,
   T: Into<std::ffi::OsString> + Clone,
 {
-  // create default path for config file
-  let default_config_path = &std::env::home_dir().unwrap();
-  let default_config_path_buf = default_config_path.join("rustwallet.conf");
+  // create default path for config and wallet file
+  let datadir_path = &std::env::home_dir().unwrap();
+  let default_config_path_buf = datadir_path.join("rustwallet.conf");
   let default_config_path_str = default_config_path_buf.to_str().unwrap();
+  let default_wallet_path_buf = datadir_path.join("wallet.dat");
+  let default_wallet_path_str = default_wallet_path_buf.to_str().unwrap();
 
   // main parse logic
   let matches = App::new(env!("CARGO_PKG_NAME"))
@@ -46,9 +48,17 @@ where
         .takes_value(true)
         .default_value(default_config_path_str),
     )
+    .arg(
+      Arg::with_name("wallet")
+        .help("Path to wallet.dat file")
+        .short("w")
+        .long("wallet")
+        .takes_value(true)
+        .default_value(default_wallet_path_str),
+    )
     .get_matches_from_safe(args)?;
   println!("{:?}", matches);
-  if let Some(o) = matches.value_of("config") {
+  while let Some(o) = matches.values_of(("config", "wallet")) {
     let spv = server::spv_listener::SPVListener::new(o);
     spv.run();
   }
