@@ -6,9 +6,6 @@ extern crate error_chain;
 mod server;
 
 extern crate bitcoin;
-extern crate futures;
-extern crate tokio_core;
-extern crate tokio_io;
 
 use clap::{App, AppSettings, Arg};
 
@@ -49,13 +46,20 @@ where
         .takes_value(true)
         .default_value(default_config_path_str),
     )
-    .get_matches_from_safe(args);
+    .get_matches_from_safe(args)?;
+  println!("{:?}", matches);
+  if let Some(o) = matches.value_of("config") {
+    let spv = server::spv_listener::SPVListener::new(o);
+    spv.run();
+  }
 
-  Ok(println!("{:?}", matches))
+  Ok(())
 }
 
 fn main() {
   if let Err(ref e) = run(std::env::args()) {
+
+    // when destructured error type is this
     if let Error(ErrorKind::Clap(ref clap_error), _) = *e {
       use clap::ErrorKind::{HelpDisplayed, VersionDisplayed};
       match clap_error.kind {
