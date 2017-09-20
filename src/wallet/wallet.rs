@@ -1,0 +1,3 @@
+struct Wallet {
+  db WalletDB
+}

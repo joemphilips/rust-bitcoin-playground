@@ -3,10 +3,14 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 
-#[macro_use]
-extern crate brev;
+mod server;
 
-use clap::{App, AppSettings};
+extern crate bitcoin;
+extern crate futures;
+extern crate tokio_core;
+extern crate tokio_io;
+
+use clap::{App, AppSettings, Arg};
 
 mod error {
   error_chain!{
@@ -17,28 +21,43 @@ mod error {
 }
 
 use error::*;
-
 fn run<I, T>(args: I) -> Result<()>
-  where I: IntoIterator<Item = T>,
-        T: Into<std::ffi::OsString> + Clone,
+where
+  I: IntoIterator<Item = T>,
+  T: Into<std::ffi::OsString> + Clone,
 {
-  let _ = App::new(env!("CARGO_PKG_NAME"))
+  // create default path for config file
+  let default_config_path = &std::env::home_dir().unwrap();
+  let default_config_path_buf = default_config_path.join("rustwallet.conf");
+  let default_config_path_str = default_config_path_buf.to_str().unwrap();
+
+  // main parse logic
+  let matches = App::new(env!("CARGO_PKG_NAME"))
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
-    .about(concat!(env!("CARGO_PKG_DESCRIPTION"),
-                   " - ",
-                   env!("CARGO_PKG_HOMEPAGE")))
+    .about(concat!(
+      env!("CARGO_PKG_DESCRIPTION"),
+      " - ",
+      env!("CARGO_PKG_HOMEPAGE")
+    ))
     .setting(AppSettings::ColoredHelp)
-    .get_matches_from_safe(args)?;
+    .arg(
+      Arg::with_name("config")
+        .help("Path to configuration file")
+        .short("c")
+        .long("config")
+        .takes_value(true)
+        .default_value(default_config_path_str),
+    )
+    .get_matches_from_safe(args);
 
-  Ok(())
+  Ok(println!("{:?}", matches))
 }
 
 fn main() {
   if let Err(ref e) = run(std::env::args()) {
     if let Error(ErrorKind::Clap(ref clap_error), _) = *e {
       use clap::ErrorKind::{HelpDisplayed, VersionDisplayed};
-      brev::err(clap_error);
       match clap_error.kind {
         HelpDisplayed | VersionDisplayed => return,
         _ => std::process::exit(1),
@@ -64,5 +83,10 @@ mod tests {
   #[test]
   fn no_op_test() {
     assert!(::run(&["hello"]).is_ok())
+  }
+  #[test]
+  #[should_panic]
+  fn should_panic_test() {
+    assert_eq!("Hello", "World")
   }
 }

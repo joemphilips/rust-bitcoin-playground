@@ -1,0 +1,46 @@
+version: 2
+jobs:
+  build:
+    working_directory: /home/circleci/okimochi
+    docker:
+      - image: joemphilips/node7-awscli-docker:latest
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "okimochi/package.json" }}
+      - run:
+          name: install npm packages
+          command: 'cd okimochi && npm install'
+      - save_cache:
+          key: dependency-cache-{{ checksum "okimochi/package.json" }}
+          paths:
+            - okimochi/.node_modules
+      - run: 'cd okimochi && npm test'
+
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+
+      - setup_remote_docker
+
+      - run:
+          name: Run integration test by docker compose
+          command: |
+            ./test.sh
+
+      - run:
+          name: build docker image for okimochi only.
+          command: |
+            docker build okimochi -f okimochi/Dockerfile --tag okimochi:temp
+
+      # deploy
+      - run:
+          name: register to ecr and deploy to ecs
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ./.circleci/deploy-ecs.sh
+            fi
+
