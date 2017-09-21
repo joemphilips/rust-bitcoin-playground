@@ -11,10 +11,9 @@ use wallet::spv_wallet::LocalBlockchainSupervisor;
 use wallet::parser::parse_config;
 
 extern crate bitcoin;
-use bitcoin::network::constants::Network;
 use bitcoin::network::listener::Listener;
 
-use clap::{App, AppSettings};
+use clap::App;
 
 mod error {
   error_chain!{
