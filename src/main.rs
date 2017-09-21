@@ -7,6 +7,7 @@ extern crate error_chain;
 
 mod wallet;
 use wallet::spv_wallet::LocalBlockchainSupervisor;
+use wallet::parser::parse_config;
 
 extern crate bitcoin;
 use bitcoin::network::constants::Network;
@@ -40,11 +41,12 @@ where
   let yml = load_yaml!("cli_option.yaml");
   let app = App::from_yaml(yml);
   let matches = app.get_matches_from_safe(args)?;
-  if let Some(o) = matches.value_of("config") {
-    println!("matches are {:?}", o);
-    let spv = LocalBlockchainSupervisor::new(Network::Testnet);
-    spv.start()?;
+  if let Some(c) = matches.value_of("config") {
+    println!("going to parse config file {:?}", c);
+    let _ = parse_config(c);
   }
+  let spv = LocalBlockchainSupervisor::new(Network::Testnet);
+  spv.start()?;
   Ok(())
 }
 
