@@ -4,6 +4,7 @@
 extern crate clap;
 #[macro_use]
 extern crate error_chain;
+extern crate config;
 
 mod wallet;
 use wallet::spv_wallet::LocalBlockchainSupervisor;
@@ -20,6 +21,7 @@ mod error {
     foreign_links {
       Clap(::clap::Error);
       Bitcoin(::bitcoin::util::Error);
+      Config(::config::ConfigError);
     }
   }
 }
@@ -30,23 +32,19 @@ where
   I: IntoIterator<Item = T>,
   T: Into<std::ffi::OsString> + Clone,
 {
-  // create default path for config and wallet file
-  /* let datadir_path = &std::env::home_dir().unwrap();
-  let default_config_path_buf = datadir_path.join("rustwallet.conf");
-  let default_config_path_str = default_config_path_buf.to_str().unwrap();
-  let default_wallet_path_buf = datadir_path.join("wallet.dat");
-  let default_wallet_path_str = default_wallet_path_buf.to_str().unwrap(); */
 
   // main parse logic
   let yml = load_yaml!("cli_option.yaml");
   let app = App::from_yaml(yml);
   let matches = app.get_matches_from_safe(args)?;
+  let configmap;
   if let Some(c) = matches.value_of("config") {
     println!("going to parse config file {:?}", c);
-    let _ = parse_config(c);
+    configmap = parse_config(c)?;
+    println!("configmap is {:?}", configmap);
+    let spv = LocalBlockchainSupervisor::new(configmap);
+    spv.start()?;
   }
-  let spv = LocalBlockchainSupervisor::new(Network::Testnet);
-  spv.start()?;
   Ok(())
 }
 

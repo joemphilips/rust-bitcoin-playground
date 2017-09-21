@@ -1,9 +1,12 @@
 #!/usr/bin/env/ run-cargo-script
 
 use error::*;
+use std::collections::HashMap;
+
 use bitcoin::blockdata::blockchain::Blockchain;
 use bitcoin::network::constants::Network;
 use bitcoin::network::listener::Listener;
+use bitcoin::util::bip32;
 
 pub struct LocalBlockchainSupervisor {
   blockchain: Blockchain,
@@ -24,16 +27,15 @@ impl Listener for LocalBlockchainSupervisor {
 }
 
 impl LocalBlockchainSupervisor {
-  pub fn new(config: Network) -> Self {
-    LocalBlockchainSupervisor { blockchain: Blockchain::new(config) }
+  pub fn new(config: HashMap<String, String>) -> Self {
+    let network;
+    if config.get("network").unwrap() == "testnet" {
+      network = Network::Testnet;
+    } else if config.get("network").unwrap() == "bitcoin" {
+      network = Network::Bitcoin;
+    } else {
+      panic!("network in config is not good!")
+    }
+    LocalBlockchainSupervisor { blockchain: Blockchain::new(network) }
   }
 }
-
-/*
-pub fn server_start() -> Result<()> {
-  let supervisor = LocalBlockchainSupervisor { blockchain: Blockchain::new(Network::Testnet) };
-  let (recv, sock) = supervisor.start()?;
-  println!("{:?}", recv);
-  Ok(())
-}
-*/
