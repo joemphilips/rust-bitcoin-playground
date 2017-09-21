@@ -10,6 +10,7 @@ use bitcoin::util::bip32;
 
 pub struct LocalBlockchainSupervisor {
   blockchain: Blockchain,
+  network: Network,
 }
 
 impl Listener for LocalBlockchainSupervisor {
@@ -22,20 +23,26 @@ impl Listener for LocalBlockchainSupervisor {
   }
 
   fn network(&self) -> Network {
-    Network::Testnet
+    self.network
+  }
+}
+
+fn get_network(network: &str) -> Option<Network> {
+  if network == "testnet" {
+    return Some(Network::Testnet);
+  } else if network == "bitcoin" {
+    return Some(Network::Bitcoin);
+  } else {
+    return None;
   }
 }
 
 impl LocalBlockchainSupervisor {
   pub fn new(config: HashMap<String, String>) -> Self {
-    let network;
-    if config.get("network").unwrap() == "testnet" {
-      network = Network::Testnet;
-    } else if config.get("network").unwrap() == "bitcoin" {
-      network = Network::Bitcoin;
-    } else {
-      panic!("network in config is not good!")
+    let network = get_network(config.get("network").unwrap()).unwrap();
+    LocalBlockchainSupervisor {
+      blockchain: Blockchain::new(network),
+      network: network,
     }
-    LocalBlockchainSupervisor { blockchain: Blockchain::new(network) }
   }
 }
