@@ -20,3 +20,4 @@ git = "https://github.com/joemphilips/rust-bitcoin"
 
 [dependencies.clap]
 features = ["yaml"]
+version = "2.19"

@@ -1,0 +1,27 @@
+name: rusty-wallet
+version: "1.0"
+about: configure your own bitcoin wallet written in rustlang.
+author: Joe Miyamoto <joemphilips@gmail.com>
+
+# AppSettings can be defined as a list and are **not** ascii case sensitive
+settings:
+    - ArgRequiredElseHelp
+    - ColoredHelp
+
+# All Args must be defined in the 'args:' list where the name of the arg, is the
+# key to a Hash object
+args:
+    # The name of this argument, is 'opt' which will be used to access the value
+    # later in your Rust code
+    - wallet:
+        help: wallet.dat file which will store secret keys(could be empty)
+        short: w
+        long: wallet
+        takes_value: true
+        default_value: wallet.dat
+    - config:
+        help: configuration yml file for this wallet.
+        short: c
+        long: config
+        takes_value: true
+        default_value: walletconf.yaml

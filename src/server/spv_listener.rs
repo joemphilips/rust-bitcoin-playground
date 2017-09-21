@@ -6,6 +6,7 @@ use std::fmt::Debug;
 
 pub struct SPVListener {
   config: String,
+  block_headers: bitcoin::blockdata::Blockchain,
 }
 
 impl Listener for SPVListener {
