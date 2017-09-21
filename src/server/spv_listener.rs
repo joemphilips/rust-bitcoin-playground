@@ -23,7 +23,7 @@ impl Listener for SPVListener {
 }
 
 impl SPVListener {
-  pub fn new<T: Iterator + Debug>(argmatches: T) -> Self {
+  pub fn new<T: Debug>(argmatches: T) -> Self {
     println!("{:?}", argmatches);
     SPVListener { config: "hoge".to_owned() }
   }

@@ -1,3 +1,4 @@
+#[macro_use]
 extern crate clap;
 
 #[macro_use]
@@ -31,7 +32,9 @@ where
   let default_wallet_path_str = default_wallet_path_buf.to_str().unwrap();
 
   // main parse logic
-  let matches = App::new(env!("CARGO_PKG_NAME"))
+  let yml = load_yaml!("walletconf.yaml");
+  let app = App::from_yaml(yml);
+  let matches = app
     .version(concat!("v", env!("CARGO_PKG_VERSION")))
     .author(env!("CARGO_PKG_AUTHORS"))
     .about(concat!(
@@ -40,25 +43,9 @@ where
       env!("CARGO_PKG_HOMEPAGE")
     ))
     .setting(AppSettings::ColoredHelp)
-    .arg(
-      Arg::with_name("config")
-        .help("Path to configuration file")
-        .short("c")
-        .long("config")
-        .takes_value(true)
-        .default_value(default_config_path_str),
-    )
-    .arg(
-      Arg::with_name("wallet")
-        .help("Path to wallet.dat file")
-        .short("w")
-        .long("wallet")
-        .takes_value(true)
-        .default_value(default_wallet_path_str),
-    )
     .get_matches_from_safe(args)?;
   println!("{:?}", matches);
-  while let Some(o) = matches.values_of(("config", "wallet")) {
+  while let Some(o) = matches.value_of("config") {
     let spv = server::spv_listener::SPVListener::new(o);
     spv.run();
   }
@@ -68,15 +55,6 @@ where
 
 fn main() {
   if let Err(ref e) = run(std::env::args()) {
-
-    // when destructured error type is this
-    if let Error(ErrorKind::Clap(ref clap_error), _) = *e {
-      use clap::ErrorKind::{HelpDisplayed, VersionDisplayed};
-      match clap_error.kind {
-        HelpDisplayed | VersionDisplayed => return,
-        _ => std::process::exit(1),
-      }
-    }
 
     println!("error: {}", e);
 
