@@ -5,13 +5,16 @@ extern crate clap;
 #[macro_use]
 extern crate error_chain;
 extern crate config;
-
-mod wallet;
-use wallet::spv_wallet::LocalBlockchainSupervisor;
-use wallet::parser::parse_config;
-
+#[feature(rand)]
+extern crate rand;
+extern crate secp256k1;
 extern crate bitcoin;
 use bitcoin::network::listener::Listener;
+
+// internal
+mod wallet;
+use wallet::spv_wallet::Wallet;
+use wallet::parser::parse_config;
 
 use clap::App;
 
@@ -20,6 +23,7 @@ mod error {
     foreign_links {
       Clap(::clap::Error);
       Bitcoin(::bitcoin::util::Error);
+      Bip32(::bitcoin::util::bip32::Error);
       Config(::config::ConfigError);
     }
   }
@@ -41,8 +45,8 @@ where
     println!("going to parse config file {:?}", c);
     configmap = parse_config(c)?;
     println!("configmap is {:?}", configmap);
-    let spv = LocalBlockchainSupervisor::new(configmap);
-    spv.start()?;
+    let spv = Wallet::new(configmap);
+    spv.show_balance();
   }
   Ok(())
 }

@@ -13,6 +13,8 @@ error-chain = "0.9.0"
 futures = "0.1.16"
 noise = "0.4.1"
 protobuf = "1.4.1"
+rand = "0.3.16"
+secp256k1 = "0.6"
 tokio-core = "0.1.9"
 tokio-io = "0.1.3"
 
