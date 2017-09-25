@@ -2,6 +2,7 @@
 
 use error::*;
 use std::collections::HashMap;
+use std::thread;
 
 use bitcoin::network::constants::Network;
 use bitcoin::util::bip32::{ChildNumber, ExtendedPubKey, ExtendedPrivKey};
@@ -36,9 +37,20 @@ impl<'a> Wallet<'a> {
 
   pub fn start(&self) -> Result<()> {
     use bitcoin::network::listener::Listener;
+    use bitcoin::network::message::NetworkMessage;
     for obs_box in self.blockchain_observers.iter() {
       let obs = &*obs_box;
-      obs.start();
+      let (mut recv, mut sock) = obs.start().unwrap();
+
+      thread::spawn(move || match sock.receive_message() {
+        Err(e) => println!("err! {:?}", e),
+        Ok(o) => {
+          match o {
+            NetworkMessage::Version(v) => println!("version is {:?}", v),
+            x => println!("received {:?}", x),
+          }
+        }
+      });
     }
     Ok(())
   }
