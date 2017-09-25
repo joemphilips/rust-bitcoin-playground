@@ -37,17 +37,25 @@ impl<'a> Wallet<'a> {
 
   pub fn start(&self) -> Result<()> {
     use bitcoin::network::listener::Listener;
-    use bitcoin::network::message::NetworkMessage;
-    for obs_box in self.blockchain_observers.iter() {
-      let obs = &*obs_box;
-      let (mut recv, mut sock) = obs.start().unwrap();
+    use bitcoin::network::message::NetworkMessage::*;
+    for obs in self.blockchain_observers.iter() {
+      let (mut recv, mut sock) = obs.start()?;
 
-      thread::spawn(move || match sock.receive_message() {
-        Err(e) => println!("err! {:?}", e),
-        Ok(o) => {
-          match o {
-            NetworkMessage::Version(v) => println!("version is {:?}", v),
-            x => println!("received {:?}", x),
+      thread::spawn(move || loop {
+        match sock.receive_message() {
+          Err(e) => println!("err! {:?}", e),
+          Ok(o) => {
+            match o {
+              Version(v) => println!("version is {:?}", v),
+              Verack => println!("received version ack"),
+              Addr(addr_vec) => println!("received addressess are {:?}", addr_vec),
+              Inv(inv_vec) => println!("received Invs are {:?}", inv_vec),
+              GetData(data_vec) => println!("received data are {:?}", data_vec),
+              NotFound(data_vec) => println!("received Inv notfound messages are {:?}", data_vec),
+              GetBlocks(msg) => println!("received get block message is {:?}", msg),
+              Ping(ver) | Pong(ver) => println!("ping pong {}", ver),
+              x => println!("received {:?}", x),
+            }
           }
         }
       });
