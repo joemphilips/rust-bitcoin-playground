@@ -22,6 +22,7 @@ impl Command<Builder> for BuilderCommand {
     use self::BuilderCommand::*;
     match *self {
       // TODO: implement other Commands
+      SignTx => println!("not implemented yet!"),
       _ => unreachable!(),
     }
   }

@@ -1,4 +1,5 @@
 #![recursion_limit = "1024"]
+#![feature(box_patterns)]
 
 #[macro_use]
 extern crate clap;
@@ -9,7 +10,8 @@ extern crate config;
 extern crate rand;
 extern crate secp256k1;
 extern crate bitcoin;
-use bitcoin::network::listener::Listener;
+
+// std library
 
 // internal
 mod wallet;
@@ -25,6 +27,7 @@ mod error {
       Bitcoin(::bitcoin::util::Error);
       Bip32(::bitcoin::util::bip32::Error);
       Config(::config::ConfigError);
+      Addr(::std::net::AddrParseError);
     }
   }
 }
@@ -45,8 +48,8 @@ where
     println!("going to parse config file {:?}", c);
     configmap = parse_config(c)?;
     println!("configmap is {:?}", configmap);
-    let spv = Wallet::new(configmap);
-    spv.show_balance();
+    let spv = Wallet::new(&configmap);
+    spv.start()?;
   }
   Ok(())
 }

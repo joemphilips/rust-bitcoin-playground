@@ -4,9 +4,7 @@ use error::*;
 use std::collections::HashMap;
 
 use bitcoin::network::constants::Network;
-use bitcoin::util::bip32;
 use bitcoin::util::bip32::{ChildNumber, ExtendedPubKey, ExtendedPrivKey};
-use bitcoin::util::bip32::Error;
 use rand::random;
 use secp256k1::Secp256k1;
 
@@ -22,22 +20,29 @@ fn init(network: Network) -> Result<ExtendedPrivKey> {
 }
 
 /// struct responsible for keychain info, balances and covert those formats.
-pub struct Wallet {
-  blockchain_observers: Vec<Box<BlockchainObserver>>,
+pub struct Wallet<'a> {
+  blockchain_observers: Vec<Box<BlockchainObserver<'a>>>,
   txbuilder: Builder,
 }
 
 
-impl Wallet {
-  pub fn new(config: HashMap<String, String>) -> Self {
+impl<'a> Wallet<'a> {
+  pub fn new(config: &'a HashMap<String, String>) -> Self {
     Wallet {
-      blockchain_observers: vec![],
+      blockchain_observers: vec![Box::new(BlockchainObserver::new(config).unwrap())],
       txbuilder: Builder {},
     }
   }
-  pub fn show_balance(&self) -> () {
-    println!("not implemented yet!")
+
+  pub fn start(&self) -> Result<()> {
+    use bitcoin::network::listener::Listener;
+    for obs_box in self.blockchain_observers.iter() {
+      let obs = &*obs_box;
+      obs.start();
+    }
+    Ok(())
   }
+  pub fn show_balance(&self) {}
 }
 
 #[cfg(test)]
