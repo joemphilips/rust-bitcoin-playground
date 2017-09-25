@@ -3,6 +3,7 @@
 use error::*;
 use std::collections::HashMap;
 use std::thread;
+use std::sync::mpsc;
 
 use bitcoin::network::constants::Network;
 use bitcoin::util::bip32::{ChildNumber, ExtendedPubKey, ExtendedPrivKey};
@@ -35,32 +36,42 @@ impl<'a> Wallet<'a> {
     }
   }
 
-  pub fn start(&self) -> Result<()> {
+  pub fn start(&self) -> Result<mpsc::Receiver<String>> {
     use bitcoin::network::listener::Listener;
+    use bitcoin::network::message::SocketResponse::*;
     use bitcoin::network::message::NetworkMessage::*;
+    let (tx, rs) = mpsc::channel();
     for obs in self.blockchain_observers.iter() {
-      let (mut recv, mut sock) = obs.start()?;
+      let tx_for_thread = tx.clone();
+      let (mut p2prx, mut p2psock) = obs.start()?;
 
       thread::spawn(move || loop {
-        match sock.receive_message() {
-          Err(e) => println!("err! {:?}", e),
-          Ok(o) => {
-            match o {
-              Version(v) => println!("version is {:?}", v),
-              Verack => println!("received version ack"),
-              Addr(addr_vec) => println!("received addressess are {:?}", addr_vec),
-              Inv(inv_vec) => println!("received Invs are {:?}", inv_vec),
-              GetData(data_vec) => println!("received data are {:?}", data_vec),
-              NotFound(data_vec) => println!("received Inv notfound messages are {:?}", data_vec),
-              GetBlocks(msg) => println!("received get block message is {:?}", msg),
-              Ping(ver) | Pong(ver) => println!("ping pong {}", ver),
-              x => println!("received {:?}", x),
-            }
+        match p2prx.recv().unwrap() {
+          ConnectionFailed(e, socket) => {
+            println!("err! {:?}", e);
+            break;
+          }
+          MessageReceived(o) => {
+            let msg: String = match o {
+              Version(v) => {
+                p2psock.send_message(Verack);
+                format!("Received version is {:?}", v)
+              }
+              Verack => format!("received version ack"),
+              Addr(addr_vec) => format!("received addressess are {:?}", addr_vec),
+              Inv(inv_vec) => format!("received Invs are {:?}", inv_vec),
+              GetData(data_vec) => format!("received data are {:?}", data_vec),
+              NotFound(data_vec) => format!("received Inv notfound messages are {:?}", data_vec),
+              GetBlocks(msg) => format!("received get block message is {:?}", msg),
+              Ping(ver) | Pong(ver) => format!("ping pong {}", ver),
+              x => format!("received {:?}", x),
+            };
+            tx_for_thread.send(msg).unwrap();
           }
         }
       });
     }
-    Ok(())
+    Ok(rs)
   }
   pub fn show_balance(&self) {}
 }

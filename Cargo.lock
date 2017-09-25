@@ -66,7 +66,7 @@ dependencies = [
 [[package]]
 name = "bitcoin"
 version = "0.10.0"
-source = "git+https://github.com/joemphilips/rust-bitcoin#149df509cf119d8c1db50bb7b5889debfd60393a"
+source = "git+https://github.com/joemphilips/rust-bitcoin#8f71bbca1734d34083609021aae33ff93150007d"
 dependencies = [
  "byteorder 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",

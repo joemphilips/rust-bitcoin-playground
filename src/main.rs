@@ -12,6 +12,7 @@ extern crate secp256k1;
 extern crate bitcoin;
 
 // std library
+use std::thread;
 
 // internal
 mod wallet;
@@ -28,6 +29,7 @@ mod error {
       Bip32(::bitcoin::util::bip32::Error);
       Config(::config::ConfigError);
       Addr(::std::net::AddrParseError);
+      MPSC(::std::sync::mpsc::RecvError);
     }
   }
 }
@@ -49,7 +51,10 @@ where
     configmap = parse_config(c)?;
     println!("configmap is {:?}", configmap);
     let spv = Wallet::new(&configmap);
-    spv.start()?;
+    let rx = spv.start()?;
+    loop {
+      println!("got message {:?}", rx.recv()?);
+    }
   }
   Ok(())
 }
