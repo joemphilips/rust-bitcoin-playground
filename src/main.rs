@@ -1,8 +1,9 @@
 #![recursion_limit = "1024"]
 #![feature(box_patterns)]
 
-#[macro_use]
 extern crate clap;
+#[macro_use]
+extern crate log;
 #[macro_use]
 extern crate error_chain;
 extern crate config;
@@ -10,9 +11,11 @@ extern crate config;
 extern crate rand;
 extern crate secp256k1;
 extern crate bitcoin;
+#[macro_use]
+extern crate lazy_static;
 
 // std library
-use std::thread;
+use std::collections::HashMap;
 
 // internal
 mod wallet;
@@ -30,8 +33,13 @@ mod error {
       Config(::config::ConfigError);
       Addr(::std::net::AddrParseError);
       MPSC(::std::sync::mpsc::RecvError);
+      IO(::std::io::Error);
     }
   }
+}
+
+lazy_static! {
+  static ref WALLET_CONFIG: HashMap<String, String> = parse_config("walletconf.yaml").unwrap();
 }
 
 use error::*;
@@ -41,21 +49,11 @@ where
   T: Into<std::ffi::OsString> + Clone,
 {
 
-  // main parse logic
-  let yml = load_yaml!("cli_option.yaml");
+  /* let yml = load_yaml!("cli_option.yaml");
   let app = App::from_yaml(yml);
-  let matches = app.get_matches_from_safe(args)?;
-  let configmap;
-  if let Some(c) = matches.value_of("config") {
-    println!("going to parse config file {:?}", c);
-    configmap = parse_config(c)?;
-    println!("configmap is {:?}", configmap);
-    let spv = Wallet::new(&configmap);
-    let rx = spv.start()?;
-    loop {
-      println!("got message {:?}", rx.recv()?);
-    }
-  }
+  let matches = app.get_matches_from_safe(args)?; */
+  let spv = Wallet::new();
+  spv.start()?;
   Ok(())
 }
 
