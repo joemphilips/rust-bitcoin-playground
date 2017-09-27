@@ -51,10 +51,15 @@ impl<'a> BlockchainObserver<'a> {
       .split(":")
       .nth(0)
       .unwrap();
-    let fp = WALLET_CONFIG.get("blockchain_db").unwrap();
-    let mut fh = fs::OpenOptions::new().write(true).create(true).open(fp)?;
-    let mut fd = RawDecoder::new(BufReader::new(fh));
 
+    // setup blockchain from file
+    let fp = WALLET_CONFIG.get("blockchain_db").unwrap();
+    let mut fh = fs::OpenOptions::new()
+      .read(true)
+      .write(true)
+      .create(true)
+      .open(fp)?;
+    let mut fd = RawDecoder::new(BufReader::new(fh));
     let blockchain = match ConsensusDecodable::consensus_decode(&mut fd) {
       Ok(blockchain) => blockchain,
       Err(e) => {
