@@ -2,7 +2,7 @@
 name = "rust-bitcoin"
 version = "0.0.0"
 dependencies = [
- "bitcoin 0.10.0 (git+https://github.com/joemphilips/rust-bitcoin)",
+ "bitcoin 0.10.0 (git+https://github.com/joemphilips/rust-bitcoin?branch=update_p2pmessages)",
  "brev 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 2.26.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "config 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -68,7 +68,7 @@ dependencies = [
 [[package]]
 name = "bitcoin"
 version = "0.10.0"
-source = "git+https://github.com/joemphilips/rust-bitcoin#8f71bbca1734d34083609021aae33ff93150007d"
+source = "git+https://github.com/joemphilips/rust-bitcoin?branch=update_p2pmessages#b1854bedc43d5e332dcd8949fafd674d769c7171"
 dependencies = [
  "byteorder 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonrpc 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -836,7 +836,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum atty 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d912da0db7fa85514874458ca3651fe2cddace8d0b0505571dbdcd41ab490159"
 "checksum backtrace 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "99f2ce94e22b8e664d95c57fff45b98a966c2252b60691d0b7aeeccd88d70983"
 "checksum backtrace-sys 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)" = "c63ea141ef8fdb10409d0f5daf30ac51f84ef43bff66f16627773d2a292cd189"
-"checksum bitcoin 0.10.0 (git+https://github.com/joemphilips/rust-bitcoin)" = "<none>"
+"checksum bitcoin 0.10.0 (git+https://github.com/joemphilips/rust-bitcoin?branch=update_p2pmessages)" = "<none>"
 "checksum bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "aad18937a628ec6abcd26d1489012cc0e18c21798210f491af69ded9b881106d"
 "checksum bitflags 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "4efd02e230a02e18f92fc2735f44597385ed02ad8f831e7c1c1156ee5e1ab3a5"
 "checksum brev 0.1.12 (registry+https://github.com/rust-lang/crates.io-index)" = "d85c3b7957223c752ff78ffd20a1806b0c7262d9aef85ed470546f16b56a5bb2"
