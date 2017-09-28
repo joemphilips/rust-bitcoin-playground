@@ -116,7 +116,7 @@ impl<'a> BlockchainObserver<'a> {
               NotFound(data_vec) => format!("received Inv notfound messages are {:?}", data_vec),
               GetBlocks(msg) => format!("received get block message is {:?}", msg),
               Ping(ver) | Pong(ver) => format!("ping pong {}", ver),
-              x => format!("received {:?}", x),
+              x => format!("received handler-undefined message: {:?}", x),
             };
             tx_for_thread.send(msg).unwrap();
           }

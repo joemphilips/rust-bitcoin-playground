@@ -1,0 +1,4 @@
+network = "testnet"
+peers = ""
+rpcaddress = "127.0.0.1:18333"
+blockchain_db = "db/blockchain.dat"

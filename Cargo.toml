@@ -21,8 +21,8 @@ tokio-core = "0.1.9"
 tokio-io = "0.1.3"
 
 [dependencies.bitcoin]
-git = "https://github.com/joemphilips/rust-bitcoin"
 branch = "update_p2pmessages"
+git = "https://github.com/joemphilips/rust-bitcoin"
 
 [dependencies.clap]
 features = ["yaml"]
