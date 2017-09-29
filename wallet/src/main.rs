@@ -4,6 +4,7 @@
 extern crate clap;
 #[macro_use]
 extern crate log;
+extern crate env_logger;
 #[macro_use]
 extern crate error_chain;
 extern crate config;
@@ -39,8 +40,9 @@ mod error {
 }
 
 lazy_static! {
-  static ref WALLET_CONFIG: HashMap<String, String> = parse_config("walletconf.yaml").unwrap();
+  static ref WALLET_CONFIG: HashMap<String, String> = parse_config("walletconf.toml").unwrap();
 }
+
 
 use error::*;
 fn run<I, T>(args: I) -> Result<()>
@@ -48,7 +50,8 @@ where
   I: IntoIterator<Item = T>,
   T: Into<std::ffi::OsString> + Clone,
 {
-
+  env_logger::init();
+  warn!("WALLET_CONFIG is {:?}", *WALLET_CONFIG);
   /* let yml = load_yaml!("cli_option.yaml");
   let app = App::from_yaml(yml);
   let matches = app.get_matches_from_safe(args)?; */
